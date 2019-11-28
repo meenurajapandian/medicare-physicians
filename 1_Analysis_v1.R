@@ -31,12 +31,31 @@ dfi <- df[df$Entity.Type.of.the.Provider == "I",]
 dfi <- droplevels(dfi)
 levels(dfi$Provider.Type.of.the.Provider)
 
+dftprov <- dfi %>% group_by(Provider.Type.of.the.Provider) %>% summarize(n=n(), benef = sum(Number.of.Medicare.Beneficiaries))
+ggplot(data=dftprov) + geom_col(aes(x=reorder(Provider.Type.of.the.Provider, n), y=n))+
+  coord_flip() 
+
+ggplot(data=dftprov) + geom_col(aes(x=reorder(Provider.Type.of.the.Provider, n), y=benef))+
+  coord_flip() 
+
+
+
+
 # CrossChecks -----------------------------------------------------------------------------------------------------------------------
 
 
 # Segmenting ------------------------------------------------------------------------------------------------------------------------
 summary(df$Number.of.Medicare.Beneficiaries)
-ggplot(data = df[df$Number.of.Medicare.Beneficiaries < 15000,]) + geom_histogram(aes(x = Number.of.Medicare.Beneficiaries))
+ggplot(data = dfi) + geom_histogram(aes(x = Number.of.Medicare.Beneficiaries),bins=5) + scale_x_log10()
+# Percentile of the number of medicare benificiaries scale
+
+summary(df$Total.Medicare.Standardized.Payment.Amount)
+ggplot(data = dfi) + geom_histogram(aes(x = Total.Medicare.Standardized.Payment.Amount)) + scale_x_log10()
+
+
+# My Stuff --------------------------------------------------------------------------------------------------------------------------
+
+
 
 
 
