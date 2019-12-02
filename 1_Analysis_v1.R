@@ -1,3 +1,7 @@
+setwd("Documents/medicare-phycisians")
+library(ggplot2)
+library(dplyr)
+
 df <- read.csv("medicare_physician.csv", stringsAsFactors = F)
 str(df)
 df$Middle.Initial.of.the.Provider <- NULL
@@ -32,11 +36,23 @@ dfi <- droplevels(dfi)
 levels(dfi$Provider.Type.of.the.Provider)
 
 dftprov <- dfi %>% group_by(Provider.Type.of.the.Provider) %>% summarize(n=n(), benef = sum(Number.of.Medicare.Beneficiaries))
-ggplot(data=dftprov) + geom_col(aes(x=reorder(Provider.Type.of.the.Provider, n), y=n))+
+tiff("test1.tiff", units="in", width=6, height=7, res=300)
+ggplot(data=dftprov) + geom_col(aes(x=reorder(Provider.Type.of.the.Provider, n), y=n), width=0.5, fill="#FFBE00")+
+  labs(x="Type of Provider", y= "Total Number Providers") + 
+  scale_y_continuous(expand = c(0, 0), limits = c(0, 120000)) + # To remove that extra space
+  theme(axis.text.y = element_text(color = "grey20", size = 5, angle = 0, face = "plain")) +
   coord_flip() 
+dev.off()
 
-ggplot(data=dftprov) + geom_col(aes(x=reorder(Provider.Type.of.the.Provider, n), y=benef))+
+tiff("test2.tiff", units="in", width=6, height=7, res=300)
+ggplot(data=dftprov) + geom_col(aes(x=reorder(Provider.Type.of.the.Provider, n), y=benef), width=0.5, fill="#FF4500")+
+  labs(x="Type of Provider", y= "Total Number Benficiaries") + 
+  scale_y_continuous(expand = c(0, 0), limits = c(0, 70000000)) + # To remove that extra space
+  theme(axis.text.y = element_text(color = "grey20", size = 5, angle = 0, face = "plain")) +
   coord_flip() 
+dev.off()
+
+# A combined plot 
 
 
 
@@ -104,6 +120,25 @@ ggplot(data = dfi) + geom_histogram(aes(x = Number.of.Medicare.Beneficiaries),bi
 summary(df$Total.Medicare.Standardized.Payment.Amount)
 ggplot(data = dfi) + geom_histogram(aes(x = Total.Medicare.Standardized.Payment.Amount)) + scale_x_log10()
 
+
+# Cross Tab ---------------------------------------------------------------------------------------------------
+
+dfcross <- dfi %>% group_by(mmedpay, mmedbenif) %>% 
+  summarise(n=n(), pay = sum(Total.Medicare.Standardized.Payment.Amount), benef= sum(Number.of.Medicare.Beneficiaries))
+
+ggplot(data = dfcross, aes(x = mmedpay, y = mmedbenif, fill = n)) + geom_tile() + 
+  scale_fill_distiller(name = "Legend title", palette = "Reds", direction = 1, na.value = "transparent") +
+  theme(legend.position = "bottom", legend.direction = "horizontal",
+        legend.title = element_text(size = 15), legend.key.size = unit(1,"cm"),
+        legend.text = element_text(size = 7)) +
+  guides(fill = guide_colorbar(title.position = "top", title.hjust = 0.5))
+
+ggplot(data = dfcross, aes(x = mmedpay, y = mmedbenif, fill = benef)) + geom_tile() + 
+  scale_fill_distiller(name = "Legend title", palette = "Reds", direction = 1, na.value = "transparent") +
+  theme(legend.position = "bottom", legend.direction = "horizontal",
+        legend.title = element_text(size = 15), legend.key.size = unit(1,"cm"),
+        legend.text = element_text(size = 7)) +
+  guides(fill = guide_colorbar(title.position = "top", title.hjust = 0.5))
 
 # My Stuff --------------------------------------------------------------------------------------------------------------------------
 simpleCap <- function(x) {
