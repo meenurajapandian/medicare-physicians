@@ -165,3 +165,18 @@ p <- ggplot(data = us_dfius,
 
 p + geom_polygon(color = "gray90", size = 0.1) 
 
+
+
+
+# Data for Bokeh ----------------------------------------------------------------------------------------------
+dfpandas <- dfi %>% group_by(State.Code.of.the.Provider) %>% 
+  summarise(providers=n(), benificiaries = sum(Number.of.Medicare.Beneficiaries), 
+            male_benif=sum(Number.of.Male.Beneficiaries, na.rm = T), 
+            female_benif=sum(Number.of.Female.Beneficiaries, na.rm = T),
+            payment=sum(Total.Medicare.Standardized.Payment.Amount),
+            male_prov = sum(Gender.of.the.Provider == "M"),
+            female_pro = sum(Gender.of.the.Provider == "F"))
+
+dfpandas <- dfpandas %>% spread(Gender.of.the.Provider)
+
+write.csv(dfpandas, file="dfpandas.csv")

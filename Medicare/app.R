@@ -5,18 +5,22 @@ library(maps)
 
 ui <- fluidPage(  
    titlePanel("Plotly"),
-   sidebarLayout(
-      sidebarPanel(),
-      mainPanel(
-         plotlyOutput("plot2"))))
+   plotlyOutput("plot2"),
+   verbatimTextOutput("click")
+)
 
 server <- function(input, output) {
    
    output$plot2 <- renderPlotly({
-      p <- ggplot(data = us_states,
-                  mapping = aes(x = long, y = lat,
-                                group = group)) + geom_polygon(fill = "white", color = "black")
-      ggplotly(p)
+      us_states$keys <- row.names(us_states)
+      p <- ggplot(data = us_states, aes(x = long, y = lat, group = group, key=keys)) + 
+         geom_polygon(fill = "white", color = "black")
+      ggplotly(p, layerData = 1)
+   })
+   
+   output$click <- renderPrint({
+      d <- event_data("plotly_click")
+      if (is.null(d)) "Click events appear here (double-click to clear)" else d
    })
 }
 
