@@ -4,7 +4,7 @@ library(dplyr)
 library(tidyverse)
 
 
-df <- read.csv("medicare_physician.csv", stringsAsFactors = F)
+df <- read.csv("Medicare_Physician_2017.csv", stringsAsFactors = F)
 str(df)
 df$Middle.Initial.of.the.Provider <- NULL
 df$Credentials.of.the.Provider <- as.factor(df$Credentials.of.the.Provider)
@@ -161,6 +161,129 @@ dftemp1 <- dftemp1 %>% spread(Gender.of.the.Provider,ones, fill=0)
 dftemp1 <- dftemp1 %>% group_by(mmedpay,mmedbenif) %>% summarise_all(funs(sum(as.numeric(.), na.rm = TRUE)))
 
 write.csv(dftemp1,"dfsegment.csv")
+
+# Across years ------------------------------------------------------------------------------------------------
+df <- read.csv("Medicare_Physician_2017.csv", stringsAsFactors = F)
+dfi <- df[df$Entity.Type.of.the.Provider == "I",]
+dfi <- droplevels(dfi)
+z <- quantile(dfi$Number.of.Medicare.Beneficiaries, c(0.2,0.4,0.6,0.8,1.0))
+dfi$mmedbenif <- 5
+dfi$mmedbenif[dfi$Number.of.Medicare.Beneficiaries <= z[4]] <- 4
+dfi$mmedbenif[dfi$Number.of.Medicare.Beneficiaries <= z[3]] <- 3
+dfi$mmedbenif[dfi$Number.of.Medicare.Beneficiaries <= z[2]] <- 2
+dfi$mmedbenif[dfi$Number.of.Medicare.Beneficiaries <= z[1]] <- 1
+dfi$mmedbenif <- as.factor(dfi$mmedbenif)
+z <- quantile(dfi$Total.Medicare.Standardized.Payment.Amount, c(0.2,0.4,0.6,0.8,1.0))
+dfi$mmedpay <- 5
+dfi$mmedpay[dfi$Total.Medicare.Standardized.Payment.Amount <= z[4]] <- 4
+dfi$mmedpay[dfi$Total.Medicare.Standardized.Payment.Amount <= z[3]] <- 3
+dfi$mmedpay[dfi$Total.Medicare.Standardized.Payment.Amount <= z[2]] <- 2
+dfi$mmedpay[dfi$Total.Medicare.Standardized.Payment.Amount <= z[1]] <- 1
+dfi$mmedpay <- as.factor(dfi$mmedpay)
+dfcross7 <- dfi %>% group_by(mmedpay, mmedbenif) %>% summarise('2017'=n())
+rm(df)
+rm(dfi)
+
+df <- read.csv("Medicare_Physician_2016.csv", stringsAsFactors = F)
+dfi <- df[df$Entity.Type.of.the.Provider == "I",]
+dfi <- droplevels(dfi)
+dfi$mmedbenif <- 5
+dfi$mmedbenif[dfi$Number.of.Medicare.Beneficiaries <= z[4]] <- 4
+dfi$mmedbenif[dfi$Number.of.Medicare.Beneficiaries <= z[3]] <- 3
+dfi$mmedbenif[dfi$Number.of.Medicare.Beneficiaries <= z[2]] <- 2
+dfi$mmedbenif[dfi$Number.of.Medicare.Beneficiaries <= z[1]] <- 1
+dfi$mmedbenif <- as.factor(dfi$mmedbenif)
+dfi$mmedpay <- 5
+dfi$mmedpay[dfi$Total.Medicare.Standardized.Payment.Amount <= z[4]] <- 4
+dfi$mmedpay[dfi$Total.Medicare.Standardized.Payment.Amount <= z[3]] <- 3
+dfi$mmedpay[dfi$Total.Medicare.Standardized.Payment.Amount <= z[2]] <- 2
+dfi$mmedpay[dfi$Total.Medicare.Standardized.Payment.Amount <= z[1]] <- 1
+dfi$mmedpay <- as.factor(dfi$mmedpay)
+dfcross6 <- dfi %>% group_by(mmedpay, mmedbenif) %>% summarise('2016'=n())
+rm(df)
+rm(dfi)
+
+
+df <- read.csv("Medicare_Physician_2015.csv", stringsAsFactors = F)
+dfi <- df[df$Entity.Type.of.the.Provider == "I",]
+dfi <- droplevels(dfi)
+dfi$mmedbenif <- 5
+dfi$mmedbenif[dfi$Number.of.Medicare.Beneficiaries <= z[4]] <- 4
+dfi$mmedbenif[dfi$Number.of.Medicare.Beneficiaries <= z[3]] <- 3
+dfi$mmedbenif[dfi$Number.of.Medicare.Beneficiaries <= z[2]] <- 2
+dfi$mmedbenif[dfi$Number.of.Medicare.Beneficiaries <= z[1]] <- 1
+dfi$mmedbenif <- as.factor(dfi$mmedbenif)
+dfi$mmedpay <- 5
+dfi$mmedpay[dfi$Total.Medicare.Standardized.Payment.Amount <= z[4]] <- 4
+dfi$mmedpay[dfi$Total.Medicare.Standardized.Payment.Amount <= z[3]] <- 3
+dfi$mmedpay[dfi$Total.Medicare.Standardized.Payment.Amount <= z[2]] <- 2
+dfi$mmedpay[dfi$Total.Medicare.Standardized.Payment.Amount <= z[1]] <- 1
+dfi$mmedpay <- as.factor(dfi$mmedpay)
+dfcross5 <- dfi %>% group_by(mmedpay, mmedbenif) %>% summarise('2015'=n())
+rm(df)
+rm(dfi)
+
+
+df <- read.csv("Medicare_Physician_2014.csv", stringsAsFactors = F)
+dfi <- df[df$Entity.Type.of.the.Provider == "I",]
+dfi <- droplevels(dfi)
+dfi$mmedbenif <- 5
+dfi$mmedbenif[dfi$Number.of.Medicare.Beneficiaries <= z[4]] <- 4
+dfi$mmedbenif[dfi$Number.of.Medicare.Beneficiaries <= z[3]] <- 3
+dfi$mmedbenif[dfi$Number.of.Medicare.Beneficiaries <= z[2]] <- 2
+dfi$mmedbenif[dfi$Number.of.Medicare.Beneficiaries <= z[1]] <- 1
+dfi$mmedbenif <- as.factor(dfi$mmedbenif)
+dfi$mmedpay <- 5
+dfi$mmedpay[dfi$Total.Medicare.Standardized.Payment.Amount <= z[4]] <- 4
+dfi$mmedpay[dfi$Total.Medicare.Standardized.Payment.Amount <= z[3]] <- 3
+dfi$mmedpay[dfi$Total.Medicare.Standardized.Payment.Amount <= z[2]] <- 2
+dfi$mmedpay[dfi$Total.Medicare.Standardized.Payment.Amount <= z[1]] <- 1
+dfi$mmedpay <- as.factor(dfi$mmedpay)
+dfcross4 <- dfi %>% group_by(mmedpay, mmedbenif) %>% summarise('2014'=n())
+rm(df)
+rm(dfi)
+
+
+df <- read.csv("Medicare_Physician_2013.csv", stringsAsFactors = F)
+dfi <- df[df$Entity.Type.of.the.Provider == "I",]
+dfi <- droplevels(dfi)
+dfi$mmedbenif <- 5
+dfi$mmedbenif[dfi$Number.of.Medicare.Beneficiaries <= z[4]] <- 4
+dfi$mmedbenif[dfi$Number.of.Medicare.Beneficiaries <= z[3]] <- 3
+dfi$mmedbenif[dfi$Number.of.Medicare.Beneficiaries <= z[2]] <- 2
+dfi$mmedbenif[dfi$Number.of.Medicare.Beneficiaries <= z[1]] <- 1
+dfi$mmedbenif <- as.factor(dfi$mmedbenif)
+dfi$mmedpay <- 5
+dfi$mmedpay[dfi$Total.Medicare.Standardized.Payment.Amount <= z[4]] <- 4
+dfi$mmedpay[dfi$Total.Medicare.Standardized.Payment.Amount <= z[3]] <- 3
+dfi$mmedpay[dfi$Total.Medicare.Standardized.Payment.Amount <= z[2]] <- 2
+dfi$mmedpay[dfi$Total.Medicare.Standardized.Payment.Amount <= z[1]] <- 1
+dfi$mmedpay <- as.factor(dfi$mmedpay)
+dfcross3 <- dfi %>% group_by(mmedpay, mmedbenif) %>% summarise('2013'=n())
+rm(df)
+rm(dfi)
+
+
+df <- read.csv("Medicare_Physician_2012.csv", stringsAsFactors = F)
+dfi <- df[df$Entity.Type.of.the.Provider == "I",]
+dfi <- droplevels(dfi)
+dfi$mmedbenif <- 5
+dfi$mmedbenif[dfi$Number.of.Medicare.Beneficiaries <= z[4]] <- 4
+dfi$mmedbenif[dfi$Number.of.Medicare.Beneficiaries <= z[3]] <- 3
+dfi$mmedbenif[dfi$Number.of.Medicare.Beneficiaries <= z[2]] <- 2
+dfi$mmedbenif[dfi$Number.of.Medicare.Beneficiaries <= z[1]] <- 1
+dfi$mmedbenif <- as.factor(dfi$mmedbenif)
+dfi$mmedpay <- 5
+dfi$mmedpay[dfi$Total.Medicare.Standardized.Payment.Amount <= z[4]] <- 4
+dfi$mmedpay[dfi$Total.Medicare.Standardized.Payment.Amount <= z[3]] <- 3
+dfi$mmedpay[dfi$Total.Medicare.Standardized.Payment.Amount <= z[2]] <- 2
+dfi$mmedpay[dfi$Total.Medicare.Standardized.Payment.Amount <= z[1]] <- 1
+dfi$mmedpay <- as.factor(dfi$mmedpay)
+dfcross2 <- dfi %>% group_by(mmedpay, mmedbenif) %>% summarise('2012'=n())
+rm(df)
+rm(dfi)
+
+
 
 # My Stuff --------------------------------------------------------------------------------------------------------------------------
 simpleCap <- function(x) {
