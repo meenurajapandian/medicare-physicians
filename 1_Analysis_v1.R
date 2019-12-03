@@ -1,6 +1,8 @@
-setwd("Documents/medicare-phycisians")
+setwd("Documents/medicare-physicians")
 library(ggplot2)
 library(dplyr)
+library(tidyverse)
+
 
 df <- read.csv("medicare_physician.csv", stringsAsFactors = F)
 str(df)
@@ -126,22 +128,39 @@ ggplot(data = dfi) + geom_histogram(aes(x = Total.Medicare.Standardized.Payment.
 # Cross Tab ---------------------------------------------------------------------------------------------------
 
 dfcross <- dfi %>% group_by(mmedpay, mmedbenif) %>% 
-  summarise(n=n(), pay = sum(Total.Medicare.Standardized.Payment.Amount), benef= sum(Number.of.Medicare.Beneficiaries))
+  summarise(n=n(), d2=sum(Percent.....of.Beneficiaries.Identified.With.Cancer * Number.of.Medicare.Beneficiaries,na.rm = T), 
+            d1=mean(Percent.....of.Beneficiaries.Identified.With.Alzheimer.s.Disease.or.Dementia* Number.of.Medicare.Beneficiaries, na.rm = T), 
+            d3=mean(Percent.....of.Beneficiaries.Identified.With.Asthma* Number.of.Medicare.Beneficiaries,na.rm = T))
 
 dfi %>% group_by(mmedpay, mmedbenif) %>% summarise(n=n()) %>% spread( mmedpay, n)
 
+png("test4.png", units="in", width=7, height=5, res=300)
 ggplot(data = dfcross, aes(x = mmedpay, y = mmedbenif, fill = n)) + geom_tile() + 
   scale_fill_distiller(name = "Legend title", palette = "Reds", direction = 1, na.value = "transparent") +
   labs(x="Number of Beneficiaries", y= "Standardized Payments")  +
-  scale_y_discrete(expand = c(0, 0),labels = c("",1,2,3,4,5), limits=c(1:5)) + 
-  scale_x_discrete(expand = c(0, 0),labels = c("",1,2,3,4,5), limits=c(1:5)) 
+  scale_y_discrete(expand = c(0, 0),labels = c(1,2,3,4,5), limits=c(1:5)) + 
+  scale_x_discrete(expand = c(0, 0),labels = c(1,2,3,4,5), limits=c(1:5)) 
+dev.off()
 
-ggplot(data = dfcross, aes(x = mmedpay, y = mmedbenif, fill = benef)) + geom_tile() + 
+
+png("test5.png", units="in", width=7, height=5, res=300)
+hm <- ggplot(data = dfcross, aes(x = mmedpay, y = mmedbenif, fill = d2)) + geom_tile() + 
   scale_fill_distiller(name = "Legend title", palette = "Reds", direction = 1, na.value = "transparent") +
-  theme(legend.position = "bottom", legend.direction = "horizontal",
-        legend.title = element_text(size = 15), legend.key.size = unit(1,"cm"),
-        legend.text = element_text(size = 7)) +
-  guides(fill = guide_colorbar(title.position = "top", title.hjust = 0.5))
+  labs(x="Number of Beneficiaries", y= "Standardized Payments")  +
+  scale_y_discrete(expand = c(0, 0),labels = c(1,2,3,4,5), limits=c(1:5)) + 
+  scale_x_discrete(expand = c(0, 0),labels = c(1,2,3,4,5), limits=c(1:5)) +
+  theme(legend.position = "left")
+dev.off()
+
+dfi$ones <- 1
+dftemp <- dfi[,c("National.Provider.Identifier","Provider.Type.of.the.Provider","mmedbenif","mmedpay","ones","Gender.of.the.Provider")]
+dftemp1 <- dftemp %>% spread(Provider.Type.of.the.Provider, ones, fill=0) 
+dftemp1$Gender.of.the.Provider <- as.character(dftemp1$Gender.of.the.Provider)
+dftemp1$ones <- 1
+dftemp1 <- dftemp1 %>% spread(Gender.of.the.Provider,ones, fill=0)
+dftemp1 <- dftemp1 %>% group_by(mmedpay,mmedbenif) %>% summarise_all(funs(sum(as.numeric(.), na.rm = TRUE)))
+
+write.csv(dftemp1,"dfsegment.csv")
 
 # My Stuff --------------------------------------------------------------------------------------------------------------------------
 simpleCap <- function(x) {
