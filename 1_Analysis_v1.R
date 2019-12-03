@@ -30,6 +30,8 @@ levels(df$Entity.Type.of.the.Provider)
 summary(df$Entity.Type.of.the.Provider)
 
 
+
+
 ## Subsetting only Individual Physicians -------------------------------------------------------------------------------------------
 dfi <- df[df$Entity.Type.of.the.Provider == "I",]
 dfi <- droplevels(dfi)
@@ -80,11 +82,11 @@ dfi$mmedbenif[dfi$Number.of.Medicare.Beneficiaries <= z[1]] <- 1
 dfi$mmedbenif <- as.factor(dfi$mmedbenif)
 summary(dfi$mmedbenif)
 
-summary(dfi$Number.of.Medicare.Beneficiaries[dfi$mmedbenif == 5])
-summary(dfi$Number.of.Medicare.Beneficiaries[dfi$mmedbenif == 4])
-summary(dfi$Number.of.Medicare.Beneficiaries[dfi$mmedbenif == 3])
-summary(dfi$Number.of.Medicare.Beneficiaries[dfi$mmedbenif == 2])
-summary(dfi$Number.of.Medicare.Beneficiaries[dfi$mmedbenif == 1])
+summary(dfi$Number.of.Medicare.Beneficiaries[dfi$medbenif == 5])
+summary(dfi$Number.of.Medicare.Beneficiaries[dfi$medbenif == 4])
+summary(dfi$Number.of.Medicare.Beneficiaries[dfi$medbenif == 3])
+summary(dfi$Number.of.Medicare.Beneficiaries[dfi$medbenif == 2])
+summary(dfi$Number.of.Medicare.Beneficiaries[dfi$medbenif == 1])
 
 
 summary(dfi$Total.Medicare.Standardized.Payment.Amount)
@@ -106,11 +108,11 @@ dfi$mmedpay[dfi$Total.Medicare.Standardized.Payment.Amount <= z[1]] <- 1
 dfi$mmedpay <- as.factor(dfi$mmedpay)
 summary(dfi$mmedpay)
 
-summary(dfi$Total.Medicare.Standardized.Payment.Amount[dfi$mmedpay == 5])
-summary(dfi$Total.Medicare.Standardized.Payment.Amount[dfi$mmedpay == 4])
-summary(dfi$Total.Medicare.Standardized.Payment.Amount[dfi$mmedpay == 3])
-summary(dfi$Total.Medicare.Standardized.Payment.Amount[dfi$mmedpay == 2])
-summary(dfi$Total.Medicare.Standardized.Payment.Amount[dfi$mmedpay == 1])
+summary(dfi$Total.Medicare.Standardized.Payment.Amount[dfi$medpay == 5])
+summary(dfi$Total.Medicare.Standardized.Payment.Amount[dfi$medpay == 4])
+summary(dfi$Total.Medicare.Standardized.Payment.Amount[dfi$medpay == 3])
+summary(dfi$Total.Medicare.Standardized.Payment.Amount[dfi$medpay == 2])
+summary(dfi$Total.Medicare.Standardized.Payment.Amount[dfi$medpay == 1])
 
 
 
@@ -126,12 +128,13 @@ ggplot(data = dfi) + geom_histogram(aes(x = Total.Medicare.Standardized.Payment.
 dfcross <- dfi %>% group_by(mmedpay, mmedbenif) %>% 
   summarise(n=n(), pay = sum(Total.Medicare.Standardized.Payment.Amount), benef= sum(Number.of.Medicare.Beneficiaries))
 
+dfi %>% group_by(mmedpay, mmedbenif) %>% summarise(n=n()) %>% spread( mmedpay, n)
+
 ggplot(data = dfcross, aes(x = mmedpay, y = mmedbenif, fill = n)) + geom_tile() + 
   scale_fill_distiller(name = "Legend title", palette = "Reds", direction = 1, na.value = "transparent") +
-  theme(legend.position = "bottom", legend.direction = "horizontal",
-        legend.title = element_text(size = 15), legend.key.size = unit(1,"cm"),
-        legend.text = element_text(size = 7)) +
-  guides(fill = guide_colorbar(title.position = "top", title.hjust = 0.5))
+  labs(x="Number of Beneficiaries", y= "Standardized Payments")  +
+  scale_y_discrete(expand = c(0, 0),labels = c("",1,2,3,4,5), limits=c(1:5)) + 
+  scale_x_discrete(expand = c(0, 0),labels = c("",1,2,3,4,5), limits=c(1:5)) 
 
 ggplot(data = dfcross, aes(x = mmedpay, y = mmedbenif, fill = benef)) + geom_tile() + 
   scale_fill_distiller(name = "Legend title", palette = "Reds", direction = 1, na.value = "transparent") +
@@ -159,13 +162,13 @@ us_states$regionA <- state.abb[match(us_states$regionC,state.name)]
 us_states$regionA[is.na(us_states$regionA)] <- "DC"
 us_dfius <- left_join(us_states, dfius, by=c("regionA" = "State.Code.of.the.Provider"))
 
-p <- ggplot(data = us_dfius,
-            aes(x = long, y = lat,
-                group = group, fill = n))
-
-p + geom_polygon(color = "gray90", size = 0.1) 
-
-
+png("test3.png", units="in", width=7, height=5, res=300)
+ggplot(data = us_dfius) + 
+  geom_polygon( aes(x = long, y = lat, group = group, fill = n), color="white") + 
+  scale_fill_distiller(palette = "Blues", direction = 0) +
+  coord_map(projection = "albers", lat0 = 39, lat1 = 45) +
+  theme_void()
+dev.off()
 
 
 # Data for Bokeh ----------------------------------------------------------------------------------------------

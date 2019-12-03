@@ -21,33 +21,52 @@ data = ColumnDataSource(df.to_dict('list'))
 
 def create_plot():
 
-    s2 = ColumnDataSource(data=dict(x=['Male','Female'], y=[50, 100]))
+    s1 = ColumnDataSource(data=dict(x=['Male', 'Female'], y=[0, 0]))  # Gender of Providers
+    s2 = ColumnDataSource(data=dict(x=['Male', 'Female'], y=[0, 0]))  # Gender of Beneficiaries
+    # s3 = ColumnDataSource()  # Type of Physicians
 
-    callback = CustomJS(args=dict(source=data, s2=s2), code="""
+    callback = CustomJS(args=dict(source=data, s1=s1, s2=s2), code="""
         var i = source.selected.indices
         console.log(cb_data.source.data['male_prov'][i])
+        console.log(cb_data.source.data['male_benif'][i])
+        
+        var d1 = s1.data;
+        d1['x'] = []
+        d1['y'] = []
+        d1['x'].push('Male')
+        d1['x'].push('Female')
+        d1['y'].push(cb_data.source.data['male_prov'][i])
+        d1['y'].push(cb_data.source.data['female_pro'][i])
+        
+        s1.change.emit();
+        
         var d2 = s2.data;
         d2['x'] = []
         d2['y'] = []
         d2['x'].push('Male')
         d2['x'].push('Female')
-        d2['y'].push(cb_data.source.data['male_prov'][i])
-        d2['y'].push(cb_data.source.data['female_pro'][i])
+        d2['y'].push(cb_data.source.data['male_benif'][i])
+        d2['y'].push(cb_data.source.data['female_benif'][i])
+        
         s2.change.emit();
         """)
 
     color_mapper = LogColorMapper(palette=palette)
 
-    p = figure(title="Medicare Data", toolbar_location="left", plot_width=1000, plot_height=600,
-              match_aspect=True, aspect_scale=0.7, x_range=[-140, -50], y_range=[20, 55])
+    p = figure(title="Medicare Data", toolbar_location="left", plot_width=810, plot_height=484,
+              match_aspect=True, aspect_scale=0.7, x_range=[-128, -64], y_range=[23, 50])
     p.patches('lons', 'lats', source=data, fill_alpha=1, line_color="#FF9200", line_width=1.25,
               fill_color={'field': 'male_prov', 'transform': color_mapper})
     p.add_tools(TapTool(callback=callback))
 
-    q = figure(title="Providers Gender", x_range=['Male','Female'], plot_width=250, plot_height=250, y_axis_label='% of Ratings Given', x_axis_label="Ratings")
-    q.vbar(x='x', top='y', width=0.5, source=s2)
+    q1 = figure(title="Providers Gender", x_range=['Male','Female'], plot_width=250, plot_height=250, y_axis_label='% of Ratings Given', x_axis_label="Ratings")
+    q1.vbar(x='x', top='y', width=0.5, source=s1)
 
-    return row(p,q)
+    q2 = figure(title="Providers Gender", x_range=['Male', 'Female'], plot_width=250, plot_height=250,
+                y_axis_label='% of Ratings Given', x_axis_label="Ratings")
+    q2.vbar(x='x', top='y', width=0.5, source=s2)
+
+    return row(p,column(q1,q2))
 
 
 def update1(attr, old ,new):
