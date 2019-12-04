@@ -59,11 +59,12 @@ def create_plot():
               fill_color={'field': 'male_prov', 'transform': color_mapper})
     p.add_tools(TapTool(callback=callback))
 
-    q1 = figure(title="Providers Gender", x_range=['Male','Female'], plot_width=250, plot_height=250, y_axis_label='% of Ratings Given', x_axis_label="Ratings")
+    q1 = figure(title="Providers Gender", x_range=['Male','Female'], plot_width=250, plot_height=250,
+                y_axis_label='Number of Providers', x_axis_label="Gender")
     q1.vbar(x='x', top='y', width=0.5, source=s1)
 
-    q2 = figure(title="Providers Gender", x_range=['Male', 'Female'], plot_width=250, plot_height=250,
-                y_axis_label='% of Ratings Given', x_axis_label="Ratings")
+    q2 = figure(title="Beneficiaries Gender", x_range=['Male', 'Female'], plot_width=250, plot_height=250,
+                y_axis_label='Number of Beneficiaries', x_axis_label="Gender")
     q2.vbar(x='x', top='y', width=0.5, source=s2)
 
     return row(p,column(q1,q2))
