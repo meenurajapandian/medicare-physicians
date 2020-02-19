@@ -19,6 +19,7 @@ df = pd.merge(df_states, df, left_index=True , right_on='State.Code.of.the.Provi
 
 data = ColumnDataSource(df.to_dict('list'))
 
+
 def create_plot():
 
     s1 = ColumnDataSource(data=dict(x=['Male', 'Female'], y=[0, 0]))  # Gender of Providers

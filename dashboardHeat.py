@@ -2,7 +2,7 @@ import pandas as pd
 import copy
 import math
 
-from bokeh.models.widgets import Slider, RadioGroup
+from bokeh.models.widgets import Slider, RadioGroup, Tabs, Panel
 from bokeh.layouts import row, widgetbox, column
 from bokeh.plotting import show, figure, curdoc
 from bokeh.io import output_file
@@ -10,18 +10,24 @@ from bokeh.models import ColumnDataSource, HoverTool, LogColorMapper, CustomJS, 
 from bokeh.sampledata import us_states
 from bokeh.palettes import Oranges9 as palette
 
+
 palette.reverse()
 df = pd.read_csv("dfsegment.csv")
-
 prov_types = df.columns[4:93].tolist()
-#print(prov_types)
 df['n'] = df['F'] + df['M']
 
 df['Types'] = df[df.columns[4:93]].values.tolist()
 df['Gender'] = df[df.columns[93:95]].values.tolist()
 dfnew = df[['n','mmedpay','mmedbenif','Types','Gender']]
+data1 = ColumnDataSource(dfnew.to_dict('list'))
 
-data=ColumnDataSource(dfnew.to_dict('list'))
+us_states = us_states.data.copy()
+state_xs = [us_states[code]["lons"] for code in us_states]
+state_ys = [us_states[code]["lats"] for code in us_states]
+df_states = pd.DataFrame.from_dict(us_states, orient='index')
+df = pd.read_csv("dfpandas.csv")
+df = pd.merge(df_states, df, left_index=True , right_on='State.Code.of.the.Provider', how='left')
+data2 = ColumnDataSource(df.to_dict('list'))
 
 
 
@@ -30,7 +36,7 @@ def create_plot():
     s1 = ColumnDataSource(data=dict(y=prov_types, x=[0]*89))  # Type of Providers
     s2 = ColumnDataSource(data=dict(y=['Female', 'Male'], x=[0, 0]))  # Gender of Providers
 
-    callback = CustomJS(args=dict(source=data, s1=s1, s2=s2), code="""
+    callback = CustomJS(args=dict(source=data1, s1=s1, s2=s2), code="""
         var i = source.selected.indices
         var d1 = s1.data;
         d1['x'] = cb_data.source.data['Types'][i]
@@ -49,7 +55,7 @@ def create_plot():
                x_range=(0.5, 5.5), y_range=(0.5, 5.5),
                x_axis_label='Standardized Payments', y_axis_label='Beneficiaries',
                match_aspect=True, aspect_scale=1)
-    p.rect('mmedpay', 'mmedbenif', width=1, height=1, source=data, fill_alpha=1, line_color="#FFFFFF", line_width=1.25,
+    p.rect('mmedpay', 'mmedbenif', width=1, height=1, source=data1, fill_alpha=1, line_color="#FFFFFF", line_width=1.25,
               fill_color={'field': 'n', 'transform': color_mapper})
 
     color_bar = ColorBar(color_mapper=color_mapper, ticker=BasicTicker(),
@@ -116,9 +122,6 @@ def create_plot():
 def update1(attr, old, new):
     layout.children[1] = create_plot()
 
-
-# mapType = RadioGroup(labels=["State", "City", "ZipCode"], active=0)
-# mapType.on_change('active', update1)
 
 colorBy = RadioGroup(labels=["Provider", "Beneficiaries"])
 colorBy.on_change('active', update1)
